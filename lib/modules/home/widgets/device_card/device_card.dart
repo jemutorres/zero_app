@@ -7,7 +7,11 @@ import 'device_card_title.dart';
 import 'device_card_status.dart';
 
 class DeviceCard extends StatelessWidget {
-  const DeviceCard(this.device);
+  DeviceCard({Key key, this.scaffoldKey, this.device}) : super(key: key);
+//  const DeviceCard(this.device);
+
+  // Scaffold key from parent
+  final GlobalKey<ScaffoldState> scaffoldKey;
 
   // The device of the card
   final Device device;
@@ -36,7 +40,7 @@ class DeviceCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     new DeviceCardTitle(device.name, _getSubtitleSize()),
-                    new DeviceCardStatus(device),
+                    new DeviceCardStatus(scaffoldKey: this.scaffoldKey, device: device),
                   ],
                 )
               ],

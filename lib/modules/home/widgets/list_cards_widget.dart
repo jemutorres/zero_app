@@ -11,6 +11,11 @@ import 'package:zero/core/utils/utils.dart';
 import 'device_card/device_card.dart';
 
 class ListCardsWidget extends StatefulWidget {
+  ListCardsWidget({Key key, this.scaffoldKey}) : super(key: key);
+
+  // Scaffold key from parent
+  final GlobalKey<ScaffoldState> scaffoldKey;
+
   @override
   _ListCardsWidgetState createState() => _ListCardsWidgetState();
 }
@@ -101,7 +106,7 @@ class _ListCardsWidgetState extends State<ListCardsWidget> with WidgetsBindingOb
             padding: EdgeInsets.only(top: 5.0),
             itemCount: items.length,
             itemBuilder: (context, index) {
-              return DeviceCard(items[index]);
+              return DeviceCard(scaffoldKey: widget.scaffoldKey, device: items[index]);
             }));
   }
 

@@ -29,14 +29,18 @@
   "screen_forensic_modules_label_modules": "Available modules",
   "screen_forensic_modules_button_run": "Run",
   "screen_title_forensic_results": "Executed modules results",
-  "screen_forensic_results_label_modules": "Executed modules",
-  "screen_forensic_results_label_executed": "Exeution date",
+  "screen_forensic_results_label_modules": "Executed module",
+  "screen_forensic_results_label_executed": "Execution date",
+  "screen_forensic_results_loading_results": "Loading results...",
   "screen_forensic_results_button_search": "Load",
+  "screen_forensic_results_button_clear": "Clear",
   "widget_device_card_button_acquire": "ACQUIRE",
   "widget_device_card_button_process": "PROCESS",
   "widget_device_card_button_results": "RESULTS",
   "widget_device_card_label_device_acquiring": "Acquiring...",
   "widget_device_card_label_device_running_module": "Processing module...",
   "widget_device_card_label_device_acquire_finished": "Acquisition completed on device ",
-  "widget_device_card_label_device_running_module_finished": "Module processing completed on device "
+  "widget_device_card_label_device_running_module_finished": " completed on device ",
+  "widget_snackbar_success": "SUCCESS",
+  "widget_snackbar_failed": "FAILED"
 }

@@ -29,14 +29,18 @@
   "screen_forensic_modules_label_modules": "Módulos disponibles",
   "screen_forensic_modules_button_run": "Ejecutar",
   "screen_title_forensic_results": "Resultados de módulos ejecutados",
-  "screen_forensic_results_label_modules": "Módulos ejecutados",
+  "screen_forensic_results_label_modules": "Módulo ejecutado",
   "screen_forensic_results_label_executed": "Fecha de ejecución",
+  "screen_forensic_results_loading_results": "Cargando resultados...",
   "screen_forensic_results_button_search": "Cargar",
+  "screen_forensic_results_button_clear": "Limpiar",
   "widget_device_card_button_acquire": "ADQUIRIR",
   "widget_device_card_button_process": "PROCESAR",
   "widget_device_card_button_results": "RESULTADOS",
   "widget_device_card_label_device_acquiring": "Adquiriendo...",
   "widget_device_card_label_device_running_module": "Procesando módulo...",
   "widget_device_card_label_device_acquire_finished": "Adquisición finalizada en dispositivo ",
-  "widget_device_card_label_device_running_module_finished": "Procesamiento de módulo finalizado en dispositivo "
+  "widget_device_card_label_device_running_module_finished": " finalizado en dispositivo ",
+  "widget_snackbar_success": "FINALIZADO",
+  "widget_snackbar_failed": "FALLIDO"
 }

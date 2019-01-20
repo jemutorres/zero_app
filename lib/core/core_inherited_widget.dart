@@ -37,9 +37,6 @@ class CoreInheritedWidget extends StatefulWidget {
 }
 
 class CoreInheritedWidgetState extends State<CoreInheritedWidget> {
-  // Notification to show in snack bar
-  NotificationApp notification;
-
   // List devices
   List<Device> devices;
 
@@ -47,14 +44,6 @@ class CoreInheritedWidgetState extends State<CoreInheritedWidget> {
   bool hasRepositories;
 
   // HELP: In all method call setState to rebuild the childrens suscribed to inherited widget
-
-  /// Add notification
-  void addNotification(String msg, NotificationAppStatus status) {
-    setState(() {
-      // TODO: Show notification
-      notification = new NotificationApp(msg, status);
-    });
-  }
 
   // Change the list of devices
   void changeDevicesList(List<Device> devices) {

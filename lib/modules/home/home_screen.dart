@@ -15,7 +15,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   // Home Scaffold key
-  final GlobalKey<ScaffoldState> homeScaffoldKey =
+  final GlobalKey<ScaffoldState> _homeScaffoldKey =
       new GlobalKey<ScaffoldState>();
 
   @override
@@ -59,12 +59,11 @@ class _HomeScreenState extends State<HomeScreen> {
             onWillPop: () => _onCloseApp(),
             // Call function if back button is pressed
             child: new Scaffold(
-                key: homeScaffoldKey, // Scaffold key
+                key: _homeScaffoldKey, // Scaffold key
                 appBar: AppBarWidget(), // Get the appbar
                 drawer: DrawerWidget(), // Get the leftside drawer
                 body: new PageView(children: <Widget>[
-                  new ListCardsWidget(), // Get the list of cards
-                  // TODO: Agregar snackbar con notificaciones
+                  new ListCardsWidget(scaffoldKey: _homeScaffoldKey), // Get the list of cards
                 ]))));
   }
 }

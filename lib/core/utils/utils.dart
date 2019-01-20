@@ -63,7 +63,7 @@ class CoreUtils {
       for (String element in list) {
         items.add(new DropdownMenuItem(
             value: element,
-            child: new Text(element)
+            child: new Text(capitalizeFirstLetter(element))
         ));
       }
     }
@@ -78,11 +78,16 @@ class CoreUtils {
       for (String key in map.keys) {
         items.add(new DropdownMenuItem(
             value: key,
-            child: new Text(map[key])
+            child: new Text(capitalizeFirstLetter(map[key]))
         ));
       }
     }
 
     return items;
   }
+
+  static String capitalizeFirstLetter(String string) {
+    return string[0].toUpperCase() + string.substring(1);
+  }
+
 }

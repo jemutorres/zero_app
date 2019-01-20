@@ -3,13 +3,19 @@ import 'dart:async';
 
 import 'package:zero/core/core_inherited_widget.dart';
 import 'package:zero/core/models/device_model.dart';
+import 'package:zero/core/models/notification_model.dart';
 import 'package:zero/core/services/localizations_service.dart';
 import 'package:zero/core/services/navigator_service.dart';
+import 'package:zero/core/utils/utils.dart';
 import 'package:zero/core/widgets/circular_progress_widget.dart';
+import 'package:zero/core/widgets/snackbar_widget.dart';
 import 'package:zero/modules/home/services/device_service.dart';
 
 class DeviceCardStatus extends StatefulWidget {
-  DeviceCardStatus(this.device);
+  DeviceCardStatus({Key key, this.scaffoldKey, this.device}) : super(key: key);
+
+  // Scaffold key from parent
+  final GlobalKey<ScaffoldState> scaffoldKey;
 
   // Device of the card
   final Device device;
@@ -60,7 +66,7 @@ class _DeviceCardStatusState extends State<DeviceCardStatus> {
   _updateDeviceStatus() async {
     DeviceStatus statusResponse;
 
-    switch(status.operation) {
+    switch (status.operation) {
       case DeviceOperation.WAITING:
         statusResponse = await getStatusDevice(device.name);
         break;
@@ -104,14 +110,14 @@ class _DeviceCardStatusState extends State<DeviceCardStatus> {
       // If state is running and new state it's different of it
       if (status.operation != DeviceOperation.WAITING &&
           response.operation == DeviceOperation.WAITING) {
-
         // If execution of module finish ok, save the id on the device
-        if(status.operation == DeviceOperation.RUNNING_MODULE && response.operationStatus == DeviceServerStatus.FINISHED) {
-          // TODO: Obtener el modulo ejecutado y pasar
+        if (status.operation == DeviceOperation.RUNNING_MODULE &&
+            response.operationStatus == DeviceServerStatus.FINISHED) {
           device.setResultModule(status.module, status.id);
         }
 
-        // TODO: Enviar notificacion
+        // Send notification
+        sendNotification(status.operation, response.operationStatus, status.module);
       }
 
       // Change status
@@ -123,6 +129,31 @@ class _DeviceCardStatusState extends State<DeviceCardStatus> {
         _stopTimer();
       }
     });
+  }
+
+  void sendNotification(DeviceOperation operation, DeviceServerStatus status, String module) {
+    String message;
+    // Get message
+    switch(operation) {
+      case DeviceOperation.ACQUIRING:
+        message = LocalizationsService.of(context)
+            .trans('widget_device_card_label_device_acquire_finished') + device.name;
+        break;
+      case DeviceOperation.RUNNING_MODULE:
+        message = CoreUtils.capitalizeFirstLetter(module) + LocalizationsService.of(context)
+            .trans('widget_device_card_label_device_running_module_finished') + device.name;
+        break;
+      default:
+        message = "";
+        break;
+    }
+
+    NotificationAppStatus notStatus = (status == DeviceServerStatus.FINISHED)
+        ? NotificationAppStatus.SUCESS
+        : NotificationAppStatus.FAILED;
+    
+    // Send notification
+    widget.scaffoldKey.currentState.showSnackBar(SnackBarWidget(context, new NotificationApp(message, notStatus)));
   }
 
   // Build the body depend the status
@@ -182,9 +213,10 @@ class _DeviceCardStatusState extends State<DeviceCardStatus> {
   // Go to forensic list and get the status
   void processModule() async {
     // Get the return of window
-    DeviceStatus processStatus = await NavigatorService.goToModuleList(context, this.device.name);
+    DeviceStatus processStatus =
+        await NavigatorService.goToModuleList(context, this.device.name);
 
-    if(processStatus != null) {
+    if (processStatus != null) {
       // Call method to decide if it's necessary reload card
       reloadCards(processStatus);
     }

@@ -1,21 +1,35 @@
-//import 'package:flutter/material.dart';
-//
-//import 'package:zero/core/core_inherited_widget.dart';
-//import 'package:zero/core/models/notification_model.dart';
-//
-//class SnackBarWidget extends SnackBar {
-//  SnackBarWidget();
-//
-//  @override
-//  Widget build(BuildContext context) {
-//
-//    final CoreInheritedWidgetState state = CoreInheritedWidget.of(context);
-//
-//    Scaffold.of(context).showSnackBar(SnackBar(
-//        content: Text(state.notification.msg),
-//        backgroundColor: Colors.amber,
-//        duration: Duration(seconds: 3)
-//    ));
-//    // TODO: Cambiar color dependiendo del estado de la notificacion
-//  }
-//}
+import 'package:flutter/material.dart';
+
+import 'package:zero/core/models/notification_model.dart';
+import 'package:zero/core/services/localizations_service.dart';
+
+SnackBar SnackBarWidget(BuildContext context, NotificationApp notification) {
+  // TODO: Cambiar color dependiendo del estado de la notificacion
+  String label;
+  Color textLabelColor;
+
+  switch(notification.notificationStatus) {
+    case NotificationAppStatus.SUCESS:
+      label = LocalizationsService.of(context)
+          .trans('widget_snackbar_success');
+      textLabelColor = Colors.blue;
+      break;
+    case NotificationAppStatus.FAILED:
+      label = LocalizationsService.of(context)
+          .trans('widget_snackbar_failed');
+      textLabelColor = Colors.red;
+      break;
+  }
+
+
+  return new SnackBar(
+      content: new Text(notification.msg),
+      action: SnackBarAction(
+        label: label,
+        textColor: textLabelColor,
+        onPressed: () {
+        },
+      ),
+      backgroundColor: Theme.of(context).primaryColor,
+      duration: Duration(seconds: 2));
+}

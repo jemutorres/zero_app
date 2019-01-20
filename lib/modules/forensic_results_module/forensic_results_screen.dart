@@ -5,6 +5,7 @@ import 'package:zero/core/models/device_model.dart';
 import 'package:zero/core/services/localizations_service.dart';
 import 'package:zero/core/utils/utils.dart';
 import 'package:zero/core/widgets/app_bar_widget.dart';
+import 'package:zero/core/widgets/circular_progress_widget.dart';
 import 'package:zero/modules/home/services/device_service.dart';
 
 class ForensicResultsScreen extends StatefulWidget {
@@ -13,7 +14,8 @@ class ForensicResultsScreen extends StatefulWidget {
   final Device device;
 
   @override
-  _ForensicResultsScreenState createState() => _ForensicResultsScreenState(this.device);
+  _ForensicResultsScreenState createState() =>
+      _ForensicResultsScreenState(this.device);
 }
 
 class _ForensicResultsScreenState extends State<ForensicResultsScreen> {
@@ -40,6 +42,9 @@ class _ForensicResultsScreenState extends State<ForensicResultsScreen> {
   // Text result from search module
   String resultModule;
 
+  // Boolean to define if load is pressed
+  bool loadPressed = false;
+
   @override
   void initState() {
     super.initState();
@@ -55,7 +60,21 @@ class _ForensicResultsScreenState extends State<ForensicResultsScreen> {
         child: new Form(
           key: this.modulesResultsFormKey,
           child: new ListView(
-            children: <Widget>[getDropDownModules(), getDropDownResults(), getRunButton(), getContainerResult()],
+            children: <Widget>[
+              getDropDownModules(), // Dropdown modules
+              getDropDownResults(), // Dropdown modules result
+              new Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  getLoadButton(), // Load button
+                  Padding(
+                    padding: new EdgeInsets.all(5.0),
+                  ),
+                  getClearButton() // Clear button
+                ],
+              ),
+              getContainerResult()
+            ],
           ),
         ));
   }
@@ -84,7 +103,9 @@ class _ForensicResultsScreenState extends State<ForensicResultsScreen> {
     Map results = getMapDate(resultsSelected);
 
     // Set selected module
-    this.selectedResultId = resultsSelected.first;
+    this.selectedResultId = this.selectedResultId == null
+        ? resultsSelected.first
+        : this.selectedResultId;
 
     // Return the dropdownbutton
     return DropdownButtonFormField<String>(
@@ -105,19 +126,19 @@ class _ForensicResultsScreenState extends State<ForensicResultsScreen> {
   Map getMapDate(List resultsSelected) {
     var formatter = new DateFormat('yyyy-MM-dd HH:mm:ss');
     Map<String, String> result = new Map<String, String>();
-    
-    for(String item in resultsSelected) {
-      int resultMiliseconds = double.tryParse(item).round() ?? int.tryParse(item);
-      result[item] = formatter.format(new DateTime.fromMillisecondsSinceEpoch(resultMiliseconds*1000));
+
+    for (String item in resultsSelected) {
+      int resultMiliseconds =
+          double.tryParse(item).round() ?? int.tryParse(item);
+      result[item] = formatter.format(
+          new DateTime.fromMillisecondsSinceEpoch(resultMiliseconds * 1000));
     }
-      return result;
+    return result;
   }
 
   // Return load button
-  Container getRunButton() {
-    final Size screenSize = MediaQuery.of(context).size;
+  Container getLoadButton() {
     return Container(
-      width: screenSize.width,
       child: new RaisedButton(
         child: new Text(
           LocalizationsService.of(context)
@@ -125,12 +146,9 @@ class _ForensicResultsScreenState extends State<ForensicResultsScreen> {
           style: new TextStyle(color: Colors.white),
         ),
         onPressed: () async {
-          // Get the result
-          String result = await getModuleResult(this.selectedResultId);
-
           setState(() {
-            // Set the result
-            resultModule = result;
+            // Reload state
+            loadPressed = true;
           });
         },
         color: Colors.blue,
@@ -139,14 +157,73 @@ class _ForensicResultsScreenState extends State<ForensicResultsScreen> {
     );
   }
 
+  // Return clear button
+  Container getClearButton() {
+    return Container(
+      child: new RaisedButton(
+        child: new Text(
+          LocalizationsService.of(context)
+              .trans('screen_forensic_results_button_clear'),
+          style: new TextStyle(color: Colors.white),
+        ),
+        onPressed: !this.loadPressed
+            ? null
+            : () {
+                setState(() {
+                  // Init variables
+                  this.selectedModule = this.modulesResults.first;
+                  this.selectedResultId = null;
+                  this.resultModule = null;
+                  loadPressed = false;
+                });
+              },
+        color: Colors.blue,
+      ),
+      margin: new EdgeInsets.only(top: 20.0),
+    );
+  }
+
   // Return run button
   Container getContainerResult() {
-    if(this.resultModule == null || this.resultModule.isNotEmpty) {
+    if(!loadPressed) {
       return Container();
     } else {
-      return Container(
-        child: new Text(resultModule),
-      );
+      return new Container(
+          child: FutureBuilder<String>(
+            future: getModuleResult(this.selectedResultId),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                this.resultModule = snapshot.data;
+                // Return container
+                return Container(
+                  color: Theme.of(context).cardColor,
+                  child: new Padding(
+                      padding: new EdgeInsets.all(10.0), child: new Text(resultModule)),
+                );
+
+              }
+
+              // Show a loading spinner
+              return Padding(
+                padding: EdgeInsets.only(top: 50.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    new CircularProgress(),
+                    Padding(
+                      padding: EdgeInsets.only(top: 20.0),
+                      child: Text(
+                          LocalizationsService.of(context)
+                              .trans('screen_forensic_results_loading_results'),
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 15.0)),
+                    )
+                  ],
+                ),
+              );
+            },
+          ));
     }
   }
 
@@ -154,7 +231,6 @@ class _ForensicResultsScreenState extends State<ForensicResultsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBarTextWidget(context, 'screen_title_forensic_results'),
-        body: buildBody()
-    );
+        body: buildBody());
   }
 }
