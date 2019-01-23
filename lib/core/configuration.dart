@@ -18,7 +18,7 @@ const Map config = const {
     'API_PORT': 5000
   },
   'ACQUIRE_TYPE': const {
-    'DEFAULT': 'E01',
-    'VALUES': ['E01', 'DD']
+    'DEFAULT': 'EWF',
+    'VALUES': ['EWF']
   }
 };

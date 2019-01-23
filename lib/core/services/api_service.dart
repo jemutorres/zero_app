@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 
 import 'package:zero/core/configuration.dart';
 import 'package:zero/core/models/response_model.dart';
+import 'package:zero/core/services/shared_preferences_service.dart';
 
 final ApiService apiService = new ApiService._internal();
 
@@ -32,8 +33,12 @@ class ApiService {
 
   Future init() async {
     try {
+      // FUNCIONALIDAD 1
+      //String ip = await sharedPreferencesService.getIp();
+
       // Get values of server's api
-      String ip = '10.3.141.1'; // TODO: Leer desde shared preferences
+      String ip = config['DEFAULT_ZERO_SERVER']['IP'];
+
       this.serverIP = this.protocol + '://' + ip + ':' + this.port.toString();
     } catch (e) {}
   }
@@ -50,11 +55,11 @@ class ApiService {
             return responseServer;
             break;
           case ResponseCode.CODE_KO:
-            throw Exception('Failed to load post');
+            throw Exception('Failed to do get');
             break;
         }
       } else {
-        throw Exception('Failed to load post');
+        throw Exception('Failed to do get');
       }
     } catch (e) {
       return null;
@@ -76,12 +81,12 @@ class ApiService {
             return responseServer;
             break;
           case ResponseCode.CODE_KO:
-            throw Exception('Failed to load post');
+            throw Exception('Failed to do post');
             break;
         }
       } else {
         // If that call was not successful, throw an error.
-        throw Exception('Failed to load post');
+        throw Exception('Failed to do post');
       }
     } catch (e) {
       return null;

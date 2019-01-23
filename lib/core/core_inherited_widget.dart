@@ -37,6 +37,8 @@ class CoreInheritedWidget extends StatefulWidget {
 }
 
 class CoreInheritedWidgetState extends State<CoreInheritedWidget> {
+  Key key = new UniqueKey();
+
   // List devices
   List<Device> devices;
 
@@ -69,8 +71,16 @@ class CoreInheritedWidgetState extends State<CoreInheritedWidget> {
     }
   }
 
+  // Method to reload app
+  // Have to change the key
+  void restartApp() {
+    this.setState(() {
+      key = new UniqueKey();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return new _CoreInherited(child: widget.child, data: this);
+    return new _CoreInherited(key: key, child: widget.child, data: this);
   }
 }

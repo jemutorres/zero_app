@@ -1,8 +1,10 @@
-TODO:
 [ ] Revisar TODOs
-[ ] Editar las imagenes para mejorar la calidad
-[ ] Guardar los valores de settings en un fichero de usuario
+[ ] Revisar fallo en dropdowns. Para reproducirlo: Hacer dos regripper y un timeline. Ir a ventana de resultados y cambiar el dropdown.
+[ ] Comprobar el refresco al insertar pendrive mientras se realiza una accion
+[ ] Botones de salir del Drawer
+[ ] No carga un timeline de 17mb. La aplicación se queda pillada.
 
 Estaría bien:
 [ ] Bundler para las imagenes de asset
 [ ] Get Started. Ver proyecto FlutKart en Descargas
+[ ] Editar las imagenes para mejorar la calidad

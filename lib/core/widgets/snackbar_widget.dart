@@ -4,7 +4,6 @@ import 'package:zero/core/models/notification_model.dart';
 import 'package:zero/core/services/localizations_service.dart';
 
 SnackBar SnackBarWidget(BuildContext context, NotificationApp notification) {
-  // TODO: Cambiar color dependiendo del estado de la notificacion
   String label;
   Color textLabelColor;
 
@@ -31,5 +30,5 @@ SnackBar SnackBarWidget(BuildContext context, NotificationApp notification) {
         },
       ),
       backgroundColor: Theme.of(context).primaryColor,
-      duration: Duration(seconds: 2));
+      duration: Duration(seconds: 3));
 }

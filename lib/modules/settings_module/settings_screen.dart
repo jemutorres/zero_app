@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
-
-import 'package:zero/modules/settings_module/models/settings_model.dart';
-import 'package:zero/core/models/repository_model.dart';
-import 'package:zero/modules/settings_module/services/settings_api_service.dart';
-import 'package:zero/core/services/localizations_service.dart';
-import 'package:zero/core/utils/utils.dart';
-import 'package:zero/core/widgets/circular_progress_widget.dart';
 import 'package:zero/core/configuration.dart';
+import 'package:zero/core/components/message_container_component.dart';
+import 'package:zero/core/models/notification_model.dart';
+import 'package:zero/core/models/settings_model.dart';
+import 'package:zero/core/services/localizations_service.dart';
+import 'package:zero/core/services/shared_preferences_service.dart';
+import 'package:zero/core/utils/utils.dart';
+import 'package:zero/core/widgets/app_bar_widget.dart';
+import 'package:zero/core/widgets/snackbar_widget.dart';
+
+import 'services/settings_service.dart';
 
 class SettingsScreen extends StatefulWidget {
   SettingsScreen({Key key}) : super(key: key);
@@ -18,60 +20,53 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  // Shared preferences of user
-  SharedPreferences _prefs;
+
+  // Settings Scaffold key
+  final GlobalKey<ScaffoldState> _settingsScaffoldKey =
+      new GlobalKey<ScaffoldState>();
 
   // Key form state
   final GlobalKey<FormState> _settingsFormKey = new GlobalKey<FormState>();
 
-  SettingsZero _settingsZero = new SettingsZero();
+  // Default settings of user
+  SettingsZero _settingsZero;
 
-  Future<SettingsZero> getDefaultSettingsUser() async {
-    // Get repositories
-    List<Repository> repositoriesAvailables = await getRepositories();
-    // Settings default
-    SettingsZero defaultZero = new SettingsZero();
-    // Default values of user
-    String ipServer;
-    String acquireType;
-    String repository;
+  // List of repositories
+  List<String> repositories;
 
-    // Get the values of user
-    SharedPreferences.getInstance().then((SharedPreferences sp) {
-      _prefs = sp;
-      ipServer = _prefs.getString("settings_ipServer");
-      acquireType = _prefs.getString("settings_acquireType");
-      repository = _prefs.getString("settings_repository");
+  // List of acquisition types
+  List<String> acquisitionsTypes;
 
-      defaultZero.ipServer =
-          ipServer == null ? config['DEFAULT_ZERO_SERVER']['IP'] : ipServer;
-      defaultZero.repositories =
-          repositoriesAvailables.map((i) => i.mountPoint).toList();
-      defaultZero.defaultRepository =
-          defaultZero.repositories.contains(repository)
-              ? repository
-              : defaultZero.repositories.first;
-      defaultZero.acquireTypes = config['ACQUIRE_TYPE']['VALUES'];
-      defaultZero.defaultAcquireType =
-          defaultZero.acquireTypes.contains(acquireType)
-              ? acquireType
-              : config['ACQUIRE_TYPE']['DEFAULT'];
-
-      return defaultZero;
-    });
+  @override
+  void initState() {
+    super.initState();
   }
 
-  AppBar getAppBar() {
-    return AppBar(
-      title: new Text(
-        LocalizationsService.of(context).trans('screen_title_settings'),
-        style: new TextStyle(
-          fontSize:
-              Theme.of(context).platform == TargetPlatform.iOS ? 17.0 : 20.0,
-        ),
-      ),
-      elevation: Theme.of(context).platform == TargetPlatform.iOS ? 0.0 : 4.0,
-    );
+  Future<SettingsZero> getDefaultSettingsUser() async {
+    // Get acquisitions types from config
+    acquisitionsTypes = config['ACQUIRE_TYPE']['VALUES'];
+    // Get repositories from server
+    repositories = await getRepositoriesName();
+    // Get values saved from the user
+    SettingsZero settings = await sharedPreferencesService.getSettings();
+
+    // Set actual values
+    // Set IP
+    settings.ipServer = settings.ipServer == null
+        ? config['DEFAULT_ZERO_SERVER']['IP']
+        : settings.ipServer;
+
+    // Set acquisition type
+    settings.defaultAcquireType = settings.defaultAcquireType == null
+        ? config['ACQUIRE_TYPE']['DEFAULT']
+        : settings.defaultAcquireType;
+    // Set repository
+    settings.defaultRepository = (repositories != null &&
+            repositories.contains(settings.defaultRepository))
+        ? settings.defaultRepository
+        : repositories.first;
+
+    return settings;
   }
 
   Widget buildBody() {
@@ -81,9 +76,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
           key: this._settingsFormKey,
           child: new ListView(
             children: <Widget>[
-              getTextFormFieldIp(),
+              // TODO: FUNCIONALIDAD 1.
+              // FUNCIONALIDAD 1: De momento vamos a dejar la configuración de la IP debido a que este cambio conlleva un reinicio de la aplicación y una comprobación de conexión a la nueva IP previa.
+              //getTextFormFieldIp(),
               getDropDownRepository(),
               getDropDownAcquireType(),
+              getSubmitButton()
             ],
           ),
         ));
@@ -91,50 +89,48 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   TextFormField getTextFormFieldIp() {
     return TextFormField(
-        initialValue: this._settingsZero.ipServer,
+        initialValue: _settingsZero.ipServer,
         decoration: new InputDecoration(
             labelText: LocalizationsService.of(context)
                 .trans('screen_settings_label_server_ip')),
         keyboardType: TextInputType.text,
-        validator: this._validateBluetoothAddr,
-        onSaved: (String value) {
-          this._settingsZero.ipServer = value;
-        });
+        validator: this._validateIp);
   }
 
   DropdownButtonFormField<String> getDropDownRepository() {
-    print(" SETTINGS_ZERO " + _settingsZero.toString());
-    print(" SETTINGS_ZERO repositories " + _settingsZero.repositories.toString());
+//    if(this.repositories != null) {
     return DropdownButtonFormField<String>(
-      items: CoreUtils.getDropdownMenuItems(_settingsZero.repositories),
+      items: CoreUtils.getDropdownMenuItems(this.repositories),
       onChanged: (String newValue) {
         setState(() {
-          this._settingsZero.defaultRepository = newValue;
-          this.submit();
+          _settingsZero.defaultRepository = newValue;
         });
       },
       decoration: new InputDecoration(
           labelText: LocalizationsService.of(context)
               .trans('screen_settings_label_repository')),
       validator: this._validateRepository,
-      value: this._settingsZero.defaultRepository,
+      value: _settingsZero.defaultRepository,
     );
+//    }
   }
 
   DropdownButtonFormField<String> getDropDownAcquireType() {
+//    if(this.acquisitionsTypes != null) {
     return DropdownButtonFormField<String>(
-      items: CoreUtils.getDropdownMenuItems(_settingsZero.acquireTypes),
+      items: CoreUtils.getDropdownMenuItems(this.acquisitionsTypes),
       onChanged: (String newValue) {
         setState(() {
-          this._settingsZero.defaultAcquireType = newValue;
+          _settingsZero.defaultAcquireType = newValue;
         });
       },
       decoration: new InputDecoration(
           labelText: LocalizationsService.of(context)
               .trans('screen_settings_label_acquire_type')),
       validator: this._validateAcquireType,
-      value: this._settingsZero.defaultAcquireType,
+      value: _settingsZero.defaultAcquireType,
     );
+//    }
   }
 
   Container getSubmitButton() {
@@ -143,7 +139,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       width: screenSize.width,
       child: new RaisedButton(
         child: new Text(
-          'Save',
+          LocalizationsService.of(context).trans('screen_settings_button_save'),
           style: new TextStyle(color: Colors.white),
         ),
         onPressed: this.submit,
@@ -153,59 +149,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Column buildErrorContainer() {
-    return new Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        Text(
-            LocalizationsService.of(context)
-                .trans('screen_settings_message_error'),
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15.0)),
-      ],
-    );
-  }
-
-  String _validateBluetoothAddr(String value) {
+  String _validateIp(String value) {
     RegExp macExp = new RegExp(
         r'^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$');
 
     if (!macExp.hasMatch(value)) {
       return LocalizationsService.of(context)
           .trans('screen_settings_message_validate_server_ip');
+    } else {
+      _settingsZero.ipServer = value;
     }
   }
 
   String _validateRepository(String value) {
-    if (!this._settingsZero.repositories.contains(value)) {
+    if (!this.repositories.contains(value)) {
       return LocalizationsService.of(context)
           .trans('screen_settings_message_validate_repository');
     }
   }
 
   String _validateAcquireType(String value) {
-    if (!this._settingsZero.acquireTypes.contains(value)) {
+    if (!this.acquisitionsTypes.contains(value)) {
       return LocalizationsService.of(context)
           .trans('screen_settings_message_validate_acquire_type');
     }
-  }
-
-  Widget getLoadingSettings() {
-    // Show a loading spinner
-    return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            new CircularProgress(),
-            Padding(
-              padding: EdgeInsets.only(top: 20.0),
-              child: Text(
-                  LocalizationsService.of(context)
-                      .trans('screen_settings_message_load'),
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 15.0)),
-            )
-          ],
-        ));
   }
 
   void submit() {
@@ -217,28 +184,46 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   // Save user preferences
   void saveUserPreferences() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('settings_ipServer', _settingsZero.ipServer);
-    prefs.setString('settings_repository', _settingsZero.defaultRepository);
-    prefs.setString('settings_acquireType', _settingsZero.defaultAcquireType);
+    bool isSaved =
+        await sharedPreferencesService.saveNewSettings(_settingsZero);
+
+    String msg;
+    NotificationAppStatus status;
+
+    if (isSaved) {
+      msg = LocalizationsService.of(context)
+          .trans('screen_settings_button_settings_saved');
+      status = NotificationAppStatus.SUCESS;
+    } else {
+      msg = LocalizationsService.of(context)
+          .trans('screen_settings_button_settings_saved_error');
+      status = NotificationAppStatus.SUCESS;
+    }
+
+    // Show notification snackbar
+    this._settingsScaffoldKey.currentState.showSnackBar(
+        SnackBarWidget(context, new NotificationApp(msg, status)));
   }
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
-        appBar: getAppBar(),
+        key: _settingsScaffoldKey,
+        appBar: AppBarTextWidget(context, 'screen_title_settings'),
         body: FutureBuilder<SettingsZero>(
           future: getDefaultSettingsUser(),
           builder: (context, snapshot) {
             if (snapshot.hasData && !(snapshot.data == null)) {
-              _settingsZero = _settingsZero == null ? snapshot.data : _settingsZero;
+              _settingsZero =
+                  _settingsZero == null ? snapshot.data : _settingsZero;
               return buildBody();
             } else if (snapshot.hasError) {
-              return buildErrorContainer();
+              return getMessage(context, 'screen_settings_message_error');
             }
 
             // Show a loading spinner
-            return getLoadingSettings();
+            return getLoadingMessage(context, 'screen_settings_message_load');
           },
         ));
   }

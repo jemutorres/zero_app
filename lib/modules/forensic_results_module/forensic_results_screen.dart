@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import 'package:zero/core/components/message_container_component.dart';
 import 'package:zero/core/models/device_model.dart';
 import 'package:zero/core/services/localizations_service.dart';
 import 'package:zero/core/utils/utils.dart';
@@ -194,12 +195,19 @@ class _ForensicResultsScreenState extends State<ForensicResultsScreen> {
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 this.resultModule = snapshot.data;
-                // Return container
-                return Container(
-                  color: Theme.of(context).cardColor,
-                  child: new Padding(
-                      padding: new EdgeInsets.all(10.0), child: new Text(resultModule)),
-                );
+                if(snapshot.hasData && snapshot.data.isNotEmpty) {
+                  // Return container
+                  return Container(
+                    color: Theme
+                        .of(context)
+                        .cardColor,
+                    child: new Padding(
+                        padding: new EdgeInsets.all(10.0),
+                        child: new Text(resultModule)),
+                  );
+                } else {
+                  return getMessage(context, 'screen_forensic_results_empty_results');
+                }
 
               }
 

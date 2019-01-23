@@ -5,6 +5,7 @@ import 'package:zero/core/configuration.dart';
 import 'package:zero/core/screens/splash_screen.dart';
 import 'package:zero/core/services/localizations_service.dart';
 import 'package:zero/core/services/api_service.dart';
+import 'package:zero/core/services/shared_preferences_service.dart';
 import 'package:zero/core/styles/theme.dart';
 
 void main() {
@@ -14,6 +15,7 @@ void main() {
 class ZeroApp extends StatelessWidget {
   void runServices() {
     // Build singleton services
+    sharedPreferencesService.init(); // First load
     apiService.init();
   }
 

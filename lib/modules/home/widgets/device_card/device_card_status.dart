@@ -239,8 +239,7 @@ class _DeviceCardStatusState extends State<DeviceCardStatus> {
                 .trans('widget_device_card_button_acquire')),
             onPressed:
                 // Visible where device it's processing and server have repositories
-                // TODO: Cambiar a !state.hasrepositories cuando Javi arregle lo suyo
-                state.hasRepositories || isProcessing
+                !state.hasRepositories || isProcessing
                     ? null
                     : () {
                         // Do acquisition

@@ -14,6 +14,17 @@ Future<List<Repository>> getRepositories() async {
   }
 }
 
+Future<List<String>> getRepositoriesName() async {
+  try {
+    // Get repositories name
+    List<Repository> repositories = await getRepositories();
+    List<String> result = repositories.map((i) => i.mountPoint).toList();
+    return result;
+  } catch (e) {
+    return null;
+  }
+}
+
 Future<bool> shutdownServer() async {
   try {
     // Get repositories

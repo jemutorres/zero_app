@@ -1,6 +1,7 @@
 import 'package:zero/core/models/device_model.dart';
 import 'package:zero/core/models/response_model.dart';
 import 'package:zero/core/services/api_service.dart';
+import 'package:zero/core/services/shared_preferences_service.dart';
 import 'package:zero/core/utils/utils.dart';
 
 // Get the list of devices connected to server
@@ -73,9 +74,11 @@ Future<bool> hasRepositories() async {
 // Start a acquisition of the device
 Future<DeviceStatus> acquireDevice(Device device) async {
   try {
+    String method = await sharedPreferencesService.getDefaultAcquireType();
+
     Map acquisition = {
       'device': device.name,
-      'method': 'ewf', // TODO: Obtener el metodo de settings
+      'method': method.toLowerCase(),
       'alias': CoreUtils.generateAliasAcquisition(device.name)
     };
 
@@ -202,7 +205,7 @@ Future<String> getModuleResult(String executionId) async {
   try {
     // Get the result of an forensic execution by the id
     Future<Response> futureResponse =
-    apiService.doGet('/forensic/task/' + executionId);
+    apiService.doGet('/forensic/task_info/' + executionId);
     // Get the generic response of server
     Response response = await futureResponse;
 

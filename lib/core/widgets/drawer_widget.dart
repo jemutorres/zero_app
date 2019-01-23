@@ -4,7 +4,6 @@ import 'package:zero/core/services/localizations_service.dart';
 import 'package:zero/core/services/navigator_service.dart';
 
 class DrawerWidget extends StatelessWidget {
-  // TODO: HACER UN LISTVIEW BUILDER Y COLOCAR LOS BOTONES DE APAGAR AL FINAL
   @override
   Widget build(BuildContext context) {
     return new Drawer(
@@ -38,26 +37,28 @@ class DrawerWidget extends StatelessWidget {
               onTap: () {
                 NavigatorService.goToSettings(context);
               }),
-          new Divider(),
-          new ListTile(
-              leading: new Icon(Icons.exit_to_app),
-              title: new Text(LocalizationsService.of(context)
-                  .trans('screen_home_list_view_exit')),
-              onTap: () {
-  //              Navigator.pop(context);
-              }),
-          new ListTile(
-              leading: new Icon(Icons.settings_power),
-              title: new Text(LocalizationsService.of(context)
-                  .trans('screen_home_list_view_exit_shutdown')),
-              onTap: () async {
-  //              bool isShutdown = await shutdownServer();
-//                if (isShutdown) {
-//                  Navigator.pop(context);
-//                } else {
-//                show
-//                }
-              }),
+          // TODO: FUNCIONALIDAD 2: HACER UN LISTVIEW BUILDER Y COLOCAR LOS BOTONES DE APAGAR AL FINAL
+          // FUNCIONALIDAD 2: Agregar apagado de la raspberry y cierre de la aplicación.
+//          new Divider(),
+//          new ListTile(
+//              leading: new Icon(Icons.exit_to_app),
+//              title: new Text(LocalizationsService.of(context)
+//                  .trans('screen_home_list_view_exit')),
+//              onTap: () {
+//  //              Navigator.pop(context);
+//              }),
+//          new ListTile(
+//              leading: new Icon(Icons.settings_power),
+//              title: new Text(LocalizationsService.of(context)
+//                  .trans('screen_home_list_view_exit_shutdown')),
+//              onTap: () async {
+//  //              bool isShutdown = await shutdownServer();
+////                if (isShutdown) {
+////                  Navigator.pop(context);
+////                } else {
+////                show
+////                }
+//              }),
       ],
     ));
   }

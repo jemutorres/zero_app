@@ -21,7 +21,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // TODO: COMPROBAR EL FUNCIONAMIENTO. NO DEVUELVE EL SSID
   }
 
   // TODO: Abstraer el showDialog a un componente y reutilizar pasando los argumentos necesarios
@@ -52,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print("repintando home");
+//    print("repintando home");
     // Implement inheritedwidget
     return CoreInheritedWidget(
         child: WillPopScope(
